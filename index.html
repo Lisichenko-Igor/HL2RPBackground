@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BETA | v4.0</title>
+
+  <style>
+    :root{
+      --bg1:#06080b;
+      --bg2:#0b121a;
+      --accent:#ff9b2f;
+      --accent2:#6ee7ff;
+      --text:#e8eef6;
+      --muted:#a9b4c0;
+      --panel: rgba(10, 16, 22, 0.85); /* Чуть плотнее, чтобы текст читался на фоне фото */
+      --panel2: rgba(10, 16, 22, 0.60);
+      --border: rgba(255,255,255,0.10);
+      --shadow: 0 20px 60px rgba(0,0,0,.7);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      /* ФОНОВОЕ ИЗОБРАЖЕНИЕ */
+      background-image: url('background.jpg'); 
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: var(--bg1); /* Цвет на случай, если картинка не прогрузится */
+      overflow: hidden;
+    }
+
+    /* Накладываем затемнение поверх картинки, чтобы интерфейс был читаемым */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(6, 8, 11, 0.4) 0%, rgba(6, 8, 11, 0.8) 100%);
+        z-index: -1;
+    }
+
+    .scanlines{
+      pointer-events:none;
+      position:fixed; inset:0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.04) 0px,
+        rgba(255,255,255,0.02) 1px,
+        rgba(0,0,0,0.00) 3px
+      );
+      mix-blend-mode: overlay;
+      opacity:.25;
+      z-index: 1;
+    }
+
+    .wrap{
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding:28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ... Весь остальной твой CSS остается без изменений ... */
+    /* (Я пропущу его для краткости, оставь свой оригинальный CSS здесь) */
+    .grid{width:min(1100px, 100%);display:grid;grid-template-columns: 1.15fr 0.85fr;gap:18px;}
+    @media (max-width: 900px){.grid{ grid-template-columns:1fr; }}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;}
+    .panel .head{padding:18px 18px 12px 18px;background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent);border-bottom:1px solid rgba(255,255,255,0.07);}
+    .brand{display:flex;align-items:center;gap:14px;}
+    .badge{width:46px; height:46px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);background:radial-gradient(circle at 30% 30%, rgba(255,155,47,0.35), transparent 55%),radial-gradient(circle at 70% 70%, rgba(110,231,255,0.22), transparent 55%),linear-gradient(180deg, rgba(255,255,255,0.07), rgba(0,0,0,0.10));display:grid;place-items:center;font-weight:800;letter-spacing:0.5px;color:rgba(255,255,255,0.92);text-shadow:0 2px 10px rgba(0,0,0,.4);}
+    .badge span{ font-size:14px; }
+    .title{line-height:1.15;}
+    .servername{font-size:20px;font-weight:800;}
+    .subtitle{color:var(--muted);margin-top:4px;font-size:13px;}
+    .content{padding:16px 18px 18px 18px;}
+    .kv{display:grid;grid-template-columns: 110px 1fr;gap:10px 14px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:var(--panel2);}
+    .k{ color:var(--muted); font-size:12px; letter-spacing:.3px; text-transform:uppercase; }
+    .v{ font-weight:650; }
+    .status{margin-top:14px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:var(--panel2);}
+    .status .line1{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px;}
+    .statuslabel{font-weight:800;letter-spacing:.2px;}
+    .statussmall{color:var(--muted);font-size:12px;white-space:nowrap;}
+    .bar{height:10px;width:100%;border-radius:999px;background: rgba(255,255,255,0.08);overflow:hidden;border:1px solid rgba(255,255,255,0.10);}
+    .bar > i{display:block;height:100%;width:0%;background: linear-gradient(90deg, var(--accent), rgba(110,231,255,0.80));box-shadow:0 0 18px rgba(255,155,47,0.25);transition: width .25s ease;}
+    .file{margin-top:10px;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .side{padding:16px 18px 18px 18px;}
+    .box{border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:var(--panel2);padding:14px;margin-bottom:12px;}
+    .boxtitle{font-weight:900;letter-spacing:.2px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+    .dot{width:8px; height:8px; border-radius:50%;background: var(--accent);box-shadow:0 0 14px rgba(255,155,47,0.35);}
+    ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.45;}
+    a{ color: var(--accent2); text-decoration:none; }
+    .tip{font-size:13px;color:var(--muted);line-height:1.45;}
+    .tip strong{ color:var(--text); }
+    .footer{position:fixed;left:18px; right:18px; bottom:14px;display:flex;justify-content:space-between;gap:12px;color:rgba(255,255,255,0.55);font-size:12px;pointer-events:none;}
+  </style>
+</head>
+
+<body>
+  <!-- МУЗЫКА -->
+  <audio id="bgAudio" src="music.mp3" autoplay loop></audio>
+
+  <div class="scanlines"></div>
+
+  <div class="wrap">
+    <div class="grid">
+      <!-- MAIN -->
+      <section class="panel">
+        <div class="head">
+          <div class="brand">
+            <div class="badge" title="HL2RP"><span>∅17</span></div>
+            <div class="title">
+              <!-- Сюда будет подставляться реальное название сервера -->
+              <div class="servername" id="servername">Загрузка...</div>
+              <div class="subtitle" id="serverurl">Подключение к серверу…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content">
+          <div class="kv">
+            <div class="k">Карта</div><div class="v" id="mapname">—</div>
+            <div class="k">Режим</div><div class="v" id="gamemode">—</div>
+            <div class="k">Игрок</div><div class="v" id="playername">—</div>
+          </div>
+
+          <div class="status">
+            <div class="line1">
+              <div class="statuslabel" id="status">Инициализация…</div>
+              <div class="statussmall" id="count">0 / 0</div>
+            </div>
+            <div class="bar"><i id="bar"></i></div>
+            <div class="file" id="file">Ожидание…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SIDE (Инфо) -->
+      <aside class="panel">
+        <!-- Твой оригинальный код боковой панели -->
+        <div class="head"><div class="brand"><div class="badge"><span>CMB</span></div><div class="title"><div class="servername">Информация</div><div class="subtitle">Правила • Дискорд • Подсказки</div></div></div></div><div class="side"><div class="box"><div class="boxtitle"><span class="dot"></span>Коротко о правилах</div><ul><li>Никакого RDM/NonRP/MetaGaming.</li><li>Соблюдай атмосферу HL2RP и реализм действий.</li><li>Никнейм персонажа должен иметь ФИО персонажа и написал латинскими буквами.</li></ul></div><div class="box"><div class="boxtitle"><span class="dot"></span>Discord</div><div class="tip">Присоединяйся: <a id="discord" href="https://discord.gg/Q4vF4MJyPf" target="_blank" rel="noreferrer">discord.gg/Q4vF4MJyPf</a><br/><span style="opacity:.85">Официальный дискорд проекта</span></div></div><div class="box"><div class="boxtitle"><span class="dot"></span>Подсказка</div><div class="tip" id="tip"><strong>Совет:</strong> держи голосовой чат чистым — IC отдельно от OOC.</div></div></div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>BETA | v4.0</div>
+    <div id="time">—</div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // Громкость музыки (от 0.0 до 1.0)
+  const audio = $("bgAudio");
+  audio.volume = 0.3; 
+
+  function setBar(pct){
+    pct = Math.max(0, Math.min(100, pct || 0));
+    $("bar").style.width = pct.toFixed(1) + "%";
+  }
+
+  // Функция для получения данных из URL
+  function parseParams(){
+    const params = new URLSearchParams(window.location.search);
+    return Object.fromEntries(params.entries());
+  }
+
+  const tips = [
+    "Читайте правила перед тем как начать игру",
+    "Если у вас возникли вопросы - обращайтесь к администрации.",
+    "IC ≠ OOC: отделяй знания персонажа от знаний игрока.",
+    "Не устраивай перестрелки без причины — в Сити 17 каждый выстрел имеет последствия.",
+    "Читай регламент перед началом игры за альянс",
+    "Если эмо текстуры или эррорки то перезайди на сервер/игру."
+  ];
+
+  let tipIdx = 0;
+  function rotateTip(){
+    tipIdx = (tipIdx + 1) % tips.length;
+    $("tip").innerHTML = "<strong>Совет:</strong> " + tips[tipIdx];
+  }
+  setInterval(rotateTip, 7000);
+
+  setInterval(()=>{
+    const d = new Date();
+    $("time").textContent = d.toLocaleString();
+  }, 1000);
+
+  // Принудительно проверяем параметры из URL при загрузке
+  const p = parseParams();
+  if (p.mapname) $("mapname").textContent = p.mapname;
+
+  // =====================================================================
+  // GMOD CALLBACKS
+  // =====================================================================
+
+  function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+    // Подставляем РЕАЛЬНОЕ название сервера из конфига Garry's Mod
+    if (servername) $("servername").textContent = servername;
+    if (mapname) $("mapname").textContent = mapname;
+    if (gamemode) $("gamemode").textContent = gamemode;
+    
+    // Пытаемся запустить музыку (иногда браузер блокирует автоплей без клика)
+    audio.play().catch(() => {
+        console.log("Автоплей заблокирован, ожидание загрузки...");
+    });
+  }
+
+  function SetStatusChanged(status) {
+    if (status) $("status").textContent = status;
+    // Если статус "Sending client info", музыка точно должна играть
+    if (status === "Sending client info") audio.play();
+  }
+
+  let filesTotal = 0;
+  let filesNeeded = 0;
+
+  function SetFilesTotal(total) {
+    filesTotal = Math.max(0, total);
+  }
+
+  function SetFilesNeeded(needed) {
+    filesNeeded = Math.max(0, needed);
+    let downloaded = filesTotal - filesNeeded;
+    if (filesTotal > 0) {
+        let pct = (downloaded / filesTotal) * 100;
+        setBar(pct);
+        $("count").textContent = downloaded + " / " + filesTotal;
+    }
+  }
+
+  function DownloadingFile(fileName) {
+    if (fileName) $("file").textContent = "Скачивание: " + fileName;
+  }
+
+  // Глобальные ссылки для движка
+  window.GameDetails = GameDetails;
+  window.SetStatusChanged = SetStatusChanged;
+  window.SetFilesTotal = SetFilesTotal;
+  window.SetFilesNeeded = SetFilesNeeded;
+  window.DownloadingFile = DownloadingFile;
+</script>
+</body>
+</html>
