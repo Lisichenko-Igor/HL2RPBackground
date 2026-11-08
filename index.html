@@ -3,244 +3,462 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BETA</title>
+  <title>BETA HUD</title>
 
   <style>
-    :root{
-      --bg1:#06080b;
-      --bg2:#0b121a;
-      --accent:#ff9b2f;
-      --accent2:#6ee7ff;
-      --text:#e8eef6;
-      --muted:#a9b4c0;
-      --panel: rgba(10, 16, 22, 0.85); /* Чуть плотнее, чтобы текст читался на фоне фото */
-      --panel2: rgba(10, 16, 22, 0.60);
-      --border: rgba(255,255,255,0.10);
-      --shadow: 0 20px 60px rgba(0,0,0,.7);
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-dark: rgba(10, 12, 14, 0.85);
+      --bg-light: rgba(25, 30, 35, 0.6);
+      --text-main: #f0f4f8;
+      --text-muted: #7a8a9e;
+      --border-color: rgba(255, 255, 255, 0.15);
+      --border-highlight: rgba(255, 255, 255, 0.8);
     }
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     
+    html, body { 
+      height: 100%; 
+      /* Технический шрифт для интерфейсов */
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif; 
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    /* ФОНОВОЕ ИЗОБРАЖЕНИЕ (Оставлено как ты просил) */
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--text);
-      /* ФОНОВОЕ ИЗОБРАЖЕНИЕ */
       background-image: url('background.jpg'); 
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      background-color: var(--bg1); /* Цвет на случай, если картинка не прогрузится */
-      overflow: hidden;
+      background-color: #050505;
     }
 
-    /* Накладываем затемнение поверх картинки, чтобы интерфейс был читаемым */
+    /* Строгое серо-черное затемнение поверх фона */
     body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        background: linear-gradient(180deg, rgba(6, 8, 11, 0.4) 0%, rgba(6, 8, 11, 0.8) 100%);
-        z-index: -1;
-    }
-
-    .scanlines{
-      pointer-events:none;
-      position:fixed; inset:0;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.04) 0px,
-        rgba(255,255,255,0.02) 1px,
-        rgba(0,0,0,0.00) 3px
-      );
-      mix-blend-mode: overlay;
-      opacity:.25;
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 100%);
       z-index: 1;
     }
 
-    .wrap{
-      height:100%;
-      display:grid;
-      place-items:center;
-      padding:28px;
-      position: relative;
+    /* Декоративная сетка на фоне (очень слабая) */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
       z-index: 2;
+      pointer-events: none;
     }
 
-    /* ... Весь остальной твой CSS остается без изменений ... */
-    /* (Я пропущу его для краткости, оставь свой оригинальный CSS здесь) */
-    .grid{width:min(1100px, 100%);display:grid;grid-template-columns: 1.15fr 0.85fr;gap:18px;}
-    @media (max-width: 900px){.grid{ grid-template-columns:1fr; }}
-    .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;}
-    .panel .head{padding:18px 18px 12px 18px;background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent);border-bottom:1px solid rgba(255,255,255,0.07);}
-    .brand{display:flex;align-items:center;gap:14px;}
-    .badge{width:46px; height:46px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);background:radial-gradient(circle at 30% 30%, rgba(255,155,47,0.35), transparent 55%),radial-gradient(circle at 70% 70%, rgba(110,231,255,0.22), transparent 55%),linear-gradient(180deg, rgba(255,255,255,0.07), rgba(0,0,0,0.10));display:grid;place-items:center;font-weight:800;letter-spacing:0.5px;color:rgba(255,255,255,0.92);text-shadow:0 2px 10px rgba(0,0,0,.4);}
-    .badge span{ font-size:14px; }
-    .title{line-height:1.15;}
-    .servername{font-size:20px;font-weight:800;}
-    .subtitle{color:var(--muted);margin-top:4px;font-size:13px;}
-    .content{padding:16px 18px 18px 18px;}
-    .kv{display:grid;grid-template-columns: 110px 1fr;gap:10px 14px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:var(--panel2);}
-    .k{ color:var(--muted); font-size:12px; letter-spacing:.3px; text-transform:uppercase; }
-    .v{ font-weight:650; }
-    .status{margin-top:14px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:var(--panel2);}
-    .status .line1{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px;}
-    .statuslabel{font-weight:800;letter-spacing:.2px;}
-    .statussmall{color:var(--muted);font-size:12px;white-space:nowrap;}
-    .bar{height:10px;width:100%;border-radius:999px;background: rgba(255,255,255,0.08);overflow:hidden;border:1px solid rgba(255,255,255,0.10);}
-    .bar > i{display:block;height:100%;width:0%;background: linear-gradient(90deg, var(--accent), rgba(110,231,255,0.80));box-shadow:0 0 18px rgba(255,155,47,0.25);transition: width .25s ease;}
-    .file{margin-top:10px;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .side{padding:16px 18px 18px 18px;}
-    .box{border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:var(--panel2);padding:14px;margin-bottom:12px;}
-    .boxtitle{font-weight:900;letter-spacing:.2px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-    .dot{width:8px; height:8px; border-radius:50%;background: var(--accent);box-shadow:0 0 14px rgba(255,155,47,0.35);}
-    ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.45;}
-    a{ color: var(--accent2); text-decoration:none; }
-    .tip{font-size:13px;color:var(--muted);line-height:1.45;}
-    .tip strong{ color:var(--text); }
-    .footer{position:fixed;left:18px; right:18px; bottom:14px;display:flex;justify-content:space-between;gap:12px;color:rgba(255,255,255,0.55);font-size:12px;pointer-events:none;}
+    /* === ОСНОВНОЙ КОНТЕЙНЕР === */
+    .wrap {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+
+    .hud-container {
+      width: min(1000px, 100%);
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 30px;
+    }
+
+    @media (max-width: 900px) {
+      .hud-container { grid-template-columns: 1fr; }
+    }
+
+    /* === ТЕХНИЧЕСКИЕ БЛОКИ (Срезанные углы) === */
+    .tech-box {
+      background: var(--bg-dark);
+      position: relative;
+      padding: 25px;
+      /* Срезаем правый нижний и левый верхний углы */
+      clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+      border-left: 2px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Декоративные рамки внутри блоков */
+    .tech-box::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border: 1px solid var(--border-color);
+      pointer-events: none;
+      clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    }
+
+    /* Белые акценты по углам */
+    .accent-corner {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--border-highlight);
+    }
+    .tech-box .tl { top: 0; left: 15px; border-right: none; border-bottom: none; }
+    .tech-box .br { bottom: 0; right: 15px; border-left: none; border-top: none; }
+
+    /* === ЗАГОЛОВКИ И ТЕКСТ === */
+    .header-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-label::before {
+      content: "";
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--border-highlight);
+    }
+
+    .servername {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-top: 5px;
+    }
+
+    /* === ДАННЫЕ (Ключ-Значение) === */
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+    .data-key {
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .data-val {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-align: right;
+    }
+
+    /* === ПРОГРЕСС БАР === */
+    .progress-section {
+      margin-top: auto;
+      background: var(--bg-light);
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+    
+    .status-text {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .bar-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--text-main);
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+      transition: width 0.2s linear;
+      position: relative;
+    }
+
+    /* Декорация на конце бара */
+    .bar-fill::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: -3px;
+      width: 2px;
+      height: 10px;
+      background: var(--text-main);
+    }
+
+    .file-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+    .file-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+    }
+
+    /* === БОКОВАЯ ПАНЕЛЬ === */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .info-block {
+      background: var(--bg-light);
+      border: 1px solid var(--border-color);
+      padding: 15px;
+      position: relative;
+    }
+    
+    .info-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .info-list {
+      list-style: none;
+    }
+    .info-list li {
+      font-size: 14px;
+      margin-bottom: 8px;
+      padding-left: 15px;
+      position: relative;
+      line-height: 1.4;
+    }
+    .info-list li::before {
+      content: ">";
+      position: absolute;
+      left: 0;
+      color: var(--border-highlight);
+      font-weight: bold;
+    }
+
+    .tip-text {
+      font-size: 14px;
+      line-height: 1.4;
+      min-height: 60px;
+    }
+
+    /* === ДЕКОРАЦИИ ИНТЕРФЕЙСА === */
+    .deco-crosshair {
+      position: fixed;
+      width: 30px; height: 30px;
+      pointer-events: none;
+      z-index: 15;
+    }
+    .deco-crosshair::before, .deco-crosshair::after {
+      content: ""; position: absolute; background: rgba(255,255,255,0.2);
+    }
+    .deco-crosshair::before { width: 100%; height: 1px; top: 50%; left: 0; }
+    .deco-crosshair::after { width: 1px; height: 100%; top: 0; left: 50%; }
+
+    .ch-1 { top: 40px; left: 40px; }
+    .ch-2 { bottom: 40px; right: 40px; }
+
+    .footer-data {
+      position: absolute;
+      bottom: 20px;
+      left: 40px;
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 3px;
+    }
   </style>
 </head>
 
 <body>
-  <!-- МУЗЫКА -->
+  <!-- Музыка -->
   <audio id="bgAudio" src="music.mp3" autoplay loop></audio>
 
-  <div class="scanlines"></div>
+  <!-- Задний фон с сеткой -->
+  <div class="grid-overlay"></div>
+
+  <!-- Декоративные перекрестия по краям экрана -->
+  <div class="deco-crosshair ch-1"></div>
+  <div class="deco-crosshair ch-2"></div>
 
   <div class="wrap">
-    <div class="grid">
-      <!-- MAIN -->
-      <section class="panel">
-        <div class="head">
-          <div class="brand">
-            <div class="badge" title="HL2RP"><span>∅17</span></div>
-            <div class="title">
-              <!-- Сюда будет подставляться реальное название сервера -->
-              <div class="servername" id="servername">Загрузка...</div>
-              <div class="subtitle" id="serverurl">Подключение к серверу…</div>
-            </div>
+    <div class="hud-container">
+      
+      <!-- ЛЕВАЯ ЧАСТЬ: Основная информация и загрузка -->
+      <main class="tech-box" style="min-height: 400px;">
+        <div class="accent-corner tl"></div>
+        <div class="accent-corner br"></div>
+
+        <div>
+          <div class="header-label">// ПОДКЛЮЧЕНИЕ...</div>
+          <div class="servername" id="servername">ОЖИДАНИЕ ДАННЫХ...</div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <div class="data-row">
+            <span class="data-key">「 КАРТА 」</span>
+            <span class="data-val" id="mapname">UNKNOWN</span>
+          </div>
+          <div class="data-row">
+            <span class="data-key">「 ВЫ 」</span>
+            <span class="data-val" id="playername">USER_OFFLINE</span>
           </div>
         </div>
 
-        <div class="content">
-          <div class="kv">
-            <div class="k">Карта</div><div class="v" id="mapname">—</div>
-            <div class="k">Режим</div><div class="v" id="gamemode">—</div>
-            <div class="k">Игрок</div><div class="v" id="playername">—</div>
+        <div class="progress-section">
+          <div class="status-text">
+            <span id="status">ОЖИДАНИЕ...</span>
+            <span id="count">0 / 0</span>
           </div>
-
-          <div class="status">
-            <div class="line1">
-              <div class="statuslabel" id="status">Инициализация…</div>
-              <div class="statussmall" id="count">0 / 0</div>
-            </div>
-            <div class="bar"><i id="bar"></i></div>
-            <div class="file" id="file">Ожидание…</div>
+          <div class="bar-container">
+            <div class="bar-fill" id="bar"></div>
+          </div>
+          <div class="file-info">
+            <span class="file-name" id="file">Ожидание передачи файлов...</span>
+            <span id="percent">0%</span>
           </div>
         </div>
-      </section>
+      </main>
 
-      <!-- SIDE (Инфо) -->
-      <aside class="panel">
-        <!-- Твой оригинальный код боковой панели -->
-        <div class="head"><div class="brand"><div class="badge"><span>CMB</span></div><div class="title"><div class="servername">Информация</div><div class="subtitle">Правила • Дискорд • Подсказки</div></div></div></div><div class="side"><div class="box"><div class="boxtitle"><span class="dot"></span>Коротко о правилах</div><ul><li>Никакого RDM/NonRP/MetaGaming.</li><li>Соблюдай атмосферу HL2RP и реализм действий.</li><li>Никнейм персонажа должен иметь ФИО персонажа и написал латинскими буквами.</li></ul></div><div class="box"><div class="boxtitle"><span class="dot"></span>Discord</div><div class="tip">Присоединяйся: <a id="discord" href="https://discord.gg/Q4vF4MJyPf" target="_blank" rel="noreferrer">discord.gg/Q4vF4MJyPf</a><br/><span style="opacity:.85">Официальный дискорд проекта</span></div></div><div class="box"><div class="boxtitle"><span class="dot"></span>Подсказка</div><div class="tip" id="tip"><strong>Совет:</strong> держи голосовой чат чистым — IC отдельно от OOC.</div></div></div>
+      <!-- ПРАВАЯ ЧАСТЬ: Инфо и правила -->
+      <aside class="side-panel">
+        <div class="tech-box">
+          <div class="accent-corner tl"></div>
+          <div class="header-label">// ПРАВИЛА</div>
+          <ul class="info-list">
+            <li>Соблюдай атмосферу HL2RP и реализм действий.</li>
+            <li>Соблюдайте правила сервера, будьте вежливы.</li>
+            <li>Никнейм должен быть написан кирилицей в формате Фамилия Имя.</li>
+          </ul>
+        </div>
+
+        <div class="tech-box">
+          <div class="accent-corner br"></div>
+          <div class="header-label">// СОВЕТЫ</div>
+          <div class="tip-text" id="tip">
+            Читайте правила перед тем как начать игру.
+          </div>
+        </div>
+
+        <div class="info-block" style="text-align: center;">
+          <div class="info-title">DISCORD</div>
+          <div style="font-weight: 600; letter-spacing: 1px;">discord.gg/Q4vF4MJyPf</div>
+        </div>
       </aside>
+
     </div>
   </div>
 
-  <div class="footer">
-    <div>BETA</div>
-    <div id="time">—</div>
+  <div class="footer-data">
+    SERVER.VER: none // ТЕКУЩЕЕ ВРЕМЯ: <span id="time">00:00:00</span>
   </div>
 
 <script>
   const $ = (id) => document.getElementById(id);
 
-  // Громкость музыки (от 0.0 до 1.0)
+  // === ГРОМКОСТЬ МУЗЫКИ ===
   const audio = $("bgAudio");
   audio.volume = 0.3; 
 
-  function setBar(pct){
-    pct = Math.max(0, Math.min(100, pct || 0));
-    $("bar").style.width = pct.toFixed(1) + "%";
-  }
+  // === ВРЕМЯ ===
+  setInterval(() => {
+    const d = new Date();
+    $("time").textContent = d.toLocaleTimeString('ru-RU');
+  }, 1000);
 
-  // Функция для получения данных из URL
-  function parseParams(){
-    const params = new URLSearchParams(window.location.search);
-    return Object.fromEntries(params.entries());
-  }
-
+  // === СОВЕТЫ ===
   const tips = [
-    "Читайте правила перед тем как начать игру",
+    "Читайте правила перед тем как начать игру.",
     "Если у вас возникли вопросы - обращайтесь к администрации.",
     "IC ≠ OOC: отделяй знания персонажа от знаний игрока.",
-    "Не устраивай перестрелки без причины — в Сити 17 каждый выстрел имеет последствия.",
-    "Читай регламент перед началом игры за альянс",
-    "Если эмо текстуры или эррорки то перезайди на сервер/игру."
+    "Не устраивай перестрелки без причины — каждый выстрел имеет последствия.",
+    "Читай регламент перед началом игры за Альянс.",
+    "Если видите эмо-текстуры или ошибки — перезайдите на сервер."
   ];
 
   let tipIdx = 0;
-  function rotateTip(){
+  function rotateTip() {
     tipIdx = (tipIdx + 1) % tips.length;
-    $("tip").innerHTML = "<strong>Совет:</strong> " + tips[tipIdx];
+    const tipEl = $("tip");
+    tipEl.style.opacity = 0.5;
+    setTimeout(() => {
+      tipEl.textContent = tips[tipIdx];
+      tipEl.style.opacity = 1;
+    }, 200);
   }
-  setInterval(rotateTip, 7000);
+  setInterval(rotateTip, 8000);
+  $("tip").style.transition = "opacity 0.2s ease";
 
-  setInterval(()=>{
-    const d = new Date();
-    $("time").textContent = d.toLocaleString();
-  }, 1000);
-
-  // Принудительно проверяем параметры из URL при загрузке
+  // === GMOD ОБРАБОТЧИКИ ===
+  function parseParams() {
+    const params = new URLSearchParams(window.location.search);
+    return Object.fromEntries(params.entries());
+  }
   const p = parseParams();
   if (p.mapname) $("mapname").textContent = p.mapname;
 
-  // =====================================================================
-  // GMOD CALLBACKS
-  // =====================================================================
-
   function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
-    // Подставляем РЕАЛЬНОЕ название сервера из конфига Garry's Mod
     if (servername) $("servername").textContent = servername;
     if (mapname) $("mapname").textContent = mapname;
     if (gamemode) $("gamemode").textContent = gamemode;
     
-    // Пытаемся запустить музыку (иногда браузер блокирует автоплей без клика)
-    audio.play().catch(() => {
-        console.log("Автоплей заблокирован, ожидание загрузки...");
-    });
+    // Включение аудио при получении данных
+    audio.play().catch(() => {});
   }
 
   function SetStatusChanged(status) {
     if (status) $("status").textContent = status;
-    // Если статус "Sending client info", музыка точно должна играть
-    if (status === "Sending client info") audio.play();
+    if (status === "Sending client info") audio.play().catch(() => {});
   }
 
   let filesTotal = 0;
-  let filesNeeded = 0;
-
   function SetFilesTotal(total) {
     filesTotal = Math.max(0, total);
   }
 
   function SetFilesNeeded(needed) {
-    filesNeeded = Math.max(0, needed);
+    let filesNeeded = Math.max(0, needed);
     let downloaded = filesTotal - filesNeeded;
+    
     if (filesTotal > 0) {
         let pct = (downloaded / filesTotal) * 100;
-        setBar(pct);
+        $("bar").style.width = pct + "%";
         $("count").textContent = downloaded + " / " + filesTotal;
+        $("percent").textContent = Math.floor(pct) + "%";
     }
   }
 
   function DownloadingFile(fileName) {
-    if (fileName) $("file").textContent = "Скачивание: " + fileName;
+    if (fileName) $("file").textContent = fileName;
   }
 
-  // Глобальные ссылки для движка
   window.GameDetails = GameDetails;
   window.SetStatusChanged = SetStatusChanged;
   window.SetFilesTotal = SetFilesTotal;
